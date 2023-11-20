@@ -12,20 +12,14 @@ while rejouer :
     
     while player!="pierre" and player !="feuille" and player !="ciseaux":
         player: str = input("Pierre, feuille ou ciseaux ?")  
-<<<<<<< Updated upstream
         
-=======
->>>>>>> Stashed changes
     for i,j in valeurs.items():
         if player==i and pcChoice==j:
             print("L'ordinateur a joué",pcChoice,"vous avez gagné !")
         elif player==j and pcChoice==i:
             print("L'ordinateur a joué",pcChoice,"vous avez perdu, dommage.")   
              
-<<<<<<< Updated upstream
     if player == pcChoice :
-=======
->>>>>>> Stashed changes
          print("L'odinateur a joué",pcChoice,"égalité")
          
     rejouer = input("Entrez 'R' pour rejouer : ") == "y"
