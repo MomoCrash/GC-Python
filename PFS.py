@@ -3,21 +3,24 @@ valeurs: dict = {"pierre":"ciseaux","feuille":"pierre","ciseaux":"feuille"}
 pc: list = ["pierre","feuille","ciseaux"]
 rejouer: bool = True
 
+#isnot_FPC(joueur):
+#    return joueur!="pierre" and joueur !="fauille" and joueur !="ciseaux"
+
 while rejouer : 
     pcChoice = random.choice(pc)
-    player: str = input("pierre, feuille ou ciseaux ?")
+    player: str = input("Pierre, feuille ou ciseaux ? ")
     
-    while player != "pierre" and player !="feuille" and player!="ciseaux":
-        player: str = input("pierre, feuille ou ciseaux ?")  
+    while player!="pierre" and player !="feuille" and player !="ciseaux":
+        player: str = input("Pierre, feuille ou ciseaux ?")  
         
     for i,j in valeurs.items():
         if player==i and pcChoice==j:
-            print("pc chose",pcChoice,"you won")
+            print("L'ordinateur a joué",pcChoice,"vous avez gagné !")
         elif player==j and pcChoice==i:
-            print("pc chose",pcChoice,"you lose")   
+            print("L'ordinateur a joué",pcChoice,"vous avez perdu, dommage.")   
              
     if player == pcChoice :
-         print("pc chose",pcChoice,"draw")
+         print("L'odinateur a joué",pcChoice,"égalité")
          
-    rejouer = input("veux-tu rejouer ? y/n") == "y"
+    rejouer = input("Entrez 'R' pour rejouer : ") == "y"
     
