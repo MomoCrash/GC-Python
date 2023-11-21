@@ -7,19 +7,26 @@ user_input: int = 0
 started: bool = False
 essais: int = 0
 
+def ask_int(question):
+    
+    reponse=""
+    while not reponse.isdigit():
+        reponse = input(question)
+    return int(reponse)
+
 while True:
     
     if not started:
         print("Bienvenue sur Plus ou Moins !")
         print("Durant le jeu vous pouvez à tout moment lors d'une question taper \n'Q' pour quitter \n'R' pour recommencer")
-        max = int(input("Pour commencer donner la borne maximale de jeu (Un nombre) : "))
-        min = int(input("Et maintenant la borne minimale : "))
+        max = ask_int("Pour commencer donner la borne maximale de jeu (Un nombre) : ")
+        min = ask_int("Et maintenant la borne minimale : ")
     
         if max < min:
             print("Vous devez mettre une borne minimale plus petite que la maximal")
         else:
-            computer_number = random.randrange(min, max)
-            started = True
+            computer_number: int = random.randrange(min, max)
+            started: bool = True
     else:
         user_input: object = input("Entre le chiffre de ton choix entre {min} et {max} : ".format(min=str(min), max=str(max)))
         
@@ -42,7 +49,7 @@ while True:
                 essais += 1
             continue
         
-        except:
+        except ValueError:
             user_input: str = user_input
             if user_input == "Q" or user_input == "q":
                 print("A très vite bébé.\n\n\n")
