@@ -31,7 +31,7 @@ def game_instance(max, min, toFind, maxEssai):
         except ValueError:
             user_input: str = user_input
             if user_input == "Q" or user_input == "q":
-                print("A très vite ma jolie.\n\n\n")
+                print("A la prochine !.\n\n\n")
                 exit()
             elif user_input == "R" or user_input == "r":
                 print("Redémarrage du jeu !\n\n\n")
@@ -58,5 +58,5 @@ while True:
             print("Bravo tu as trouvé la bonne réponse en {essais} essai(s) c'était {nbr}".format(essais=rapport[1], nbr=computer_number))
             print("Relancement du jeu.\n\n\n")
         else:
-            print("Perdu tête de cul !")
+            print("Perdu !")
         
