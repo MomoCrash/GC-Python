@@ -1,16 +1,28 @@
 import random
-valeurs: dict = {"pierre":"ciseaux","feuille":"pierre","ciseaux":"feuille"}
+values: dict = {"pierre":"ciseaux","feuille":"pierre","ciseaux":"feuille"}
 pc: list = ["pierre","feuille","ciseaux"]
-rejouer: bool = True
+replay: bool = True
 
-while rejouer : 
-    pcChoice = random.choice(pc)
-    player: str = input("pierre, feuille ou ciseaux ?")
+def checkAns(player_input):
+    poss: list = ["pierre","Pierre","feuille","Feuille","ciseaux","Ciseaux"]
+    while True:
+        for i in poss:
+            if player_input==i:
+                return player_input
+        player_input = input("pierre, feuille ou ciseaux ?")
+
+def gameInstance(options):
     
-    while player != "pierre" and player !="feuille" and player!="ciseaux":
-        player: str = input("Pierre, feuille ou ciseaux ?")  
-        
-    for i,j in valeurs.items():
+    botChoice = random.choice(options)
+    pChoice: str = input("pierre, feuille ou ciseaux ?")
+    
+    pChoice = checkAns(pChoice)
+    
+    return botChoice,pChoice
+
+def play(val,pcChoice,player):
+
+    for i,j in val.items():
         if player==i and pcChoice==j:
             print("L'ordinateur a choisi :",pcChoice,"vous avez gagné !")
         elif player==j and pcChoice==i:
@@ -18,6 +30,11 @@ while rejouer :
              
     if player == pcChoice :
          print("L'ordinateur a choisi :",pcChoice,"égalité")
-         
-    rejouer = input("Voulez-vous rejouer ? y/n ") == "y"
+
+while replay : 
     
+    bot,p=gameInstance(pc)
+    
+    play(values,bot,p)
+         
+    replay = input("Voulez-vous rejouer ? y/n ") == "y"
