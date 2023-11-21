@@ -1,11 +1,27 @@
 import random
+from time import sleep
 
-def ask_int(question):
-    
+def ask_int(question, max=1000000000) -> int:
     reponse=""
-    while not reponse.isdigit():
+    while not reponse.isdigit() or ((int(reponse) < 0) or (int(reponse) >= max)):
         reponse = input(question)
     return int(reponse)
+
+def game_init():
+    print("Bienvenue sur Plus ou Moins !")
+    print("Durant le jeu vous pouvez à tout moment lors d'une question taper \n'Q' pour quitter \n'R' pour recommencer")
+    max = ask_int("Pour commencer donner la borne maximale de jeu (Un nombre) : ")
+    min = ask_int("Et maintenant la borne minimale : ", max)
+    essais_max = ask_int("En combiens d'essais voulez-vous jouer ? : ")
+    
+    computer_number: int = random.randrange(min, max)
+    rapport = game_instance(max, min, computer_number, essais_max)
+    if rapport[0]:
+        print("Bravo tu as trouvé la bonne réponse en {essais} essai(s) c'était {nbr}".format(essais=rapport[1], nbr=computer_number))
+        sleep(2)
+        print("Relancement du jeu.")
+    else:
+        print("Vous avez perdu !! \n Le jeu va se relancer !")
 
 def game_instance(max, min, toFind, maxEssai):
     user_input = None
@@ -20,13 +36,12 @@ def game_instance(max, min, toFind, maxEssai):
                 print("Vous êtes au dessus de la borne maximale {max}".format(max=max))
             elif user_input < min:
                 print("Vous êtes en dessous de la borne minimale {min}".format(min=min))
-            elif user_input > computer_number:
+            elif user_input > toFind:
                 print("Le chiffre à trouver est plus petit que {current}.".format(current=user_input))
                 essais += 1
             else:
                 print("Le chiffre à trouver est plus grand que {current}.".format(current=user_input))
                 essais += 1
-            continue
         
         except ValueError:
             user_input: str = user_input
@@ -34,29 +49,11 @@ def game_instance(max, min, toFind, maxEssai):
                 print("A très vite ma jolie.\n\n\n")
                 exit()
             elif user_input == "R" or user_input == "r":
-                print("Redémarrage du jeu !\n\n\n")
-                started = False
+                return (False, 0)
             else:
                 print("Votre réponse n'es pas bonne ! \nPour rappel les commandes sont :\n'Q' pour quitter \n'R' pour recommencer")
-            continue
+        
     return (essais <= maxEssai, essais)
 
 while True:
-    
-    print("Bienvenue sur Plus ou Moins !")
-    print("Durant le jeu vous pouvez à tout moment lors d'une question taper \n'Q' pour quitter \n'R' pour recommencer")
-    max = ask_int("Pour commencer donner la borne maximale de jeu (Un nombre) : ")
-    min = ask_int("Et maintenant la borne minimale : ")
-    essais_max = ask_int("En combiens d'essais voulez-vous jouer ? : ")
-    
-    if max < min:
-        print("Vous devez mettre une borne minimale plus petite que la maximal")
-    else:
-        computer_number: int = random.randrange(min, max)
-        rapport = game_instance(max, min, computer_number, essais_max)
-        if rapport[0]:
-            print("Bravo tu as trouvé la bonne réponse en {essais} essai(s) c'était {nbr}".format(essais=rapport[1], nbr=computer_number))
-            print("Relancement du jeu.\n\n\n")
-        else:
-            print("Perdu tête de cul !")
-        
+    game_init()
