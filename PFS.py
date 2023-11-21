@@ -8,16 +8,16 @@ while rejouer :
     player: str = input("pierre, feuille ou ciseaux ?")
     
     while player != "pierre" and player !="feuille" and player!="ciseaux":
-        player: str = input("pierre, feuille ou ciseaux ?")  
+        player: str = input("Pierre, feuille ou ciseaux ?")  
         
     for i,j in valeurs.items():
         if player==i and pcChoice==j:
-            print("pc chose",pcChoice,"you won")
+            print("L'ordinateur a choisi :",pcChoice,"vous avez gagné !")
         elif player==j and pcChoice==i:
-            print("pc chose",pcChoice,"you lose")   
+            print("L'ordinateur a choisi :",pcChoice,"vous avez perdu, dommage !")   
              
     if player == pcChoice :
-         print("pc chose",pcChoice,"draw")
+         print("L'ordinateur a choisi :",pcChoice,"égalité")
          
-    rejouer = input("veux-tu rejouer ? y/n") == "y"
+    rejouer = input("Voulez-vous rejouer ? y/n ") == "y"
     
