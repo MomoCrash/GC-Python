@@ -1,8 +1,10 @@
-WIN_COMBI = [((0,0),(1,0),(2,0)), ((0,1),(1,1),(2,1)), ((0,2),(1,2),(2,2))]
-gridPlay = [ [" ", " ", " "], [" ", " ", " "], [" ", " ", " "] ]
+WIDTH = 3
+HEIGHT = 3
 
-def updateGrid(grid):
-     return f'[{grid[0][0]}] | [{grid[0][1]}] | [{grid[0][2]}] \n---------------- \n[{grid[1][0]}] | [{grid[1][1]}] | [{grid[1][2]}] \n--------------- \n[{grid[2][0]}] | [{grid[2][1]}] | [{grid[2][2]}]'
+def generateGrid():
+    return [[" "]*WIDTH]*HEIGHT
+    
+gridPlay = generateGrid()
 
 def checkWin(grid):
     for i in range(len(grid)-1):
@@ -24,3 +26,13 @@ while True:
     isWon, winner=checkWin(gridPlay)
     if isWon:
         print(winner,"a gagné")
+        
+def printGrid(grid):
+    string = ""
+    for line in grid:
+        for case in line:
+            string += "[" + case + "]"
+        string += "\n"
+    print(string)
+        
+printGrid(gridPlay)
