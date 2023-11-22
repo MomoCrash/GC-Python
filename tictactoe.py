@@ -6,6 +6,14 @@ def generateGrid():
     
 gridPlay = generateGrid()
 
+def printGrid(grid):
+    string = ""
+    for line in grid:
+        for case in line:
+            string += "[" + case + "]"
+        string += "\n"
+    print(string)
+
 def checkWin(grid):
     for i in range(len(grid)-1):
         for j in range(len(grid[i])-1):
@@ -18,21 +26,11 @@ def checkWin(grid):
             else:
                 return False,""
 
-print(updateGrid(gridPlay))
+printGrid(gridPlay)
 while True:
     position = input("Mettez la position sour la forme 'xy' : ")
     gridPlay[int(position[0]) - 1][int(position[1]) - 1] = "x"
-    print(updateGrid(gridPlay))
+    printGrid(gridPlay)
     isWon, winner=checkWin(gridPlay)
     if isWon:
         print(winner,"a gagné")
-        
-def printGrid(grid):
-    string = ""
-    for line in grid:
-        for case in line:
-            string += "[" + case + "]"
-        string += "\n"
-    print(string)
-        
-printGrid(gridPlay)
