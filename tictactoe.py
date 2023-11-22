@@ -2,7 +2,7 @@ WIDTH = 3
 HEIGHT = 3
 
 def generateGrid():
-    return [[" "]*WIDTH]*HEIGHT
+    return [x for x in fruits if "a" in x]
     
 gridPlay = generateGrid()
 
@@ -29,6 +29,7 @@ def checkWin(grid):
 printGrid(gridPlay)
 while True:
     position = input("Mettez la position sour la forme 'xy' : ")
+    print(position)
     gridPlay[int(position[0]) - 1][int(position[1]) - 1] = "x"
     printGrid(gridPlay)
     isWon, winner=checkWin(gridPlay)
