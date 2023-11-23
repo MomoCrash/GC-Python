@@ -4,6 +4,7 @@ WIDTH = 3
 HEIGHT = 3
 
 
+
 ## Grid generation
 def generateGrid():
     grid = []
@@ -12,8 +13,6 @@ def generateGrid():
         for j in range(WIDTH):
             grid[i].append(" ")
     return grid
-    
-gridPlay = generateGrid()
 
 ## Print grid to console
 def printGrid(grid):
@@ -35,7 +34,7 @@ def checkWin(grid):
             elif grid[i][j] == grid[i+1][j+1] and grid[i][j]==grid[i-1][j-1] and grid[i-1][j-1]!=" ":
                 return True,grid[i][j]
             else:
-                return False,"Bite"
+                return False,""
 
 # IA play logic
 def getRandomGridPosition():
@@ -50,17 +49,27 @@ def playIA(grid):
         pos = getRandomGridPosition()
     grid[pos[0]][pos[1]] = "o"
     
-
+gridPlay = generateGrid()
 printGrid(gridPlay)
+replay:bool = True
 
-while True:
+while replay:
     position = input("Mettez la position sour la forme 'x:y' : ")
     position = position.split(":")
     gridPlay[int(position[0]) - 1][int(position[1]) - 1] = "x"
     
-    playIA(gridPlay)
-    printGrid(gridPlay)
-    
     isWon, winner=checkWin(gridPlay)
     if isWon:
+        printGrid(gridPlay)
         print(winner,"a gagné")
+        replay= input("Voulez-vous rejouer ? y/n ") == "y"
+        gridPlay = generateGrid()
+    
+    playIA(gridPlay)
+    printGrid(gridPlay)
+    isWon, winner=checkWin(gridPlay)
+    
+    if isWon:
+        print(winner,"a gagné")
+        replay= input("Voulez-vous rejouer ? y/n ") == "y"
+        gridPlay = generateGrid()
