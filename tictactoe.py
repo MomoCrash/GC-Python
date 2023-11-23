@@ -3,8 +3,27 @@ import random
 WIDTH = 5
 HEIGHT = 5
 
-def askPosition(question):
-    input(question)
+## Ask grid position 
+def askPosition(question, grid):
+    reponse = input(question).split(":")
+    formated = False
+    while not formated:
+        try:
+            x = int(reponse[0])
+            y = int(reponse[1])
+            if (x > 0 and x <= WIDTH) and (y > 0 and y <= HEIGHT):
+                if (grid[x-1][y-1] == " "):
+                    return (x-1, y-1)
+                else:
+                    print("Quelqu'un a déjà joué ici !")
+                    reponse = input(question).split(":")
+            else:
+                print("Votre placement est hors des limites de la grille !")
+                reponse = input(question).split(":")
+        except:
+            print("Votre position n'existe pas essayez par exemple : 1:1.")
+            reponse = input(question).split(":")
+    
 
 
 ## Grid generation
@@ -56,9 +75,8 @@ printGrid(gridPlay)
 replay:bool = True
 
 while replay:
-    position = input("Mettez la position sour la forme 'x:y' : ")
-    position = position.split(":")
-    gridPlay[int(position[0]) - 1][int(position[1]) - 1] = "x"
+    position = askPosition("Mettez la position sour la forme 'x:y' : ", gridPlay)
+    gridPlay[position[0]][position[1]] = "x"
     
     isWon, winner=checkWin(gridPlay)
     if isWon:
