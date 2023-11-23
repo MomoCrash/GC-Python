@@ -1,8 +1,10 @@
 import random
 
-WIDTH = 3
-HEIGHT = 3
+WIDTH = 5
+HEIGHT = 5
 
+def askPosition(question):
+    input(question)
 
 ## Grid generation
 def generateGrid():
@@ -26,16 +28,16 @@ def printGrid(grid):
 
 # Check if someone win the game
 def checkWin(grid):
-    for i in range(len(grid)-1):
-        for j in range(len(grid[i])-1):
-            if grid[i][j] == grid[i][j+1] and grid[i][j] == grid[i][j-1] and grid[i][j]!=" ":
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            if grid[i][j] != " " and (j+1 < WIDTH and j-1 >= 0) and grid[i][j] == grid[i][j+1] and grid[i][j] == grid[i][j-1]:
                 return True,grid[i][j]
-            elif grid[i][j] == grid[i+1][j] and grid[i][j] == grid[i-1][j] and grid[i][j]!=" ":
+            elif grid[i][j]!=" " and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j] and grid[i][j] == grid[i-1][j]:
                 return True,grid[i][j]
-            elif grid[i][j] == grid[i+1][j+1] and grid[i][j]==grid[i-1][j-1] and grid[i-1][j-1]!=" ":
+            elif grid[i-1][j-1]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j+1] and grid[i][j]==grid[i-1][j-1]:
                 return True,grid[i][j]
-            else:
-                return False,"Bite"
+
+    return False,""
 
 # IA play logic
 def getRandomGridPosition():
