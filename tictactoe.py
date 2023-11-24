@@ -97,21 +97,51 @@ def checkWin(grid) -> bool:
             
             elif grid[i-1][j-1]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j+1] and grid[i][j]==grid[i-1][j-1]:
                 return True,grid[i][j]
+            
+            elif grid[i][j]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i-1][j+1] and grid[i][j]==grid[i+1][j-1]:
+                return True,grid[i][j]
 
     return False,""
 
 # IA play logic
 def getRandomGridPosition()->str:
     return random.choice(empty_slot)
-
-def getPlayAtPos(pos, grid)->bool:
-    return grid[pos[0]][pos[1]] == " "
-
-def playIA(grid):
-    pos = getRandomGridPosition().split(":")
-    popFilledSlot(pos[0], pos[1])
     
-    grid[int(pos[0])][int(pos[1])] = "o"
+def blockPlayer(i,j,grid,symbol):
+    if grid[i][j] != " " and (j+1 < WIDTH and j-1 >= 0) and grid[i][j] == symbol and grid[i][j+1]==symbol:
+        return True,i,j-1
+    elif grid[i][j] != " " and (j+1 < WIDTH and j-1 >= 0) and grid[i][j] == symbol and grid[i][j-1]==symbol:
+         return True,i,j+1
+    elif grid[i][j]!=" " and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i+1][j]==symbol:
+        return True,i-1,j
+    elif grid[i][j]!=" " and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j]==symbol:
+        return True,i+1,j
+    elif grid[i-1][j-1]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i+1][j+1]==symbol:
+        return True,i-1,j-1
+    elif grid[i-1][j-1]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j-1]==symbol:
+        return True,i+1,j+1
+    else:
+        return False,0,0
+def playIA(grid):
+    pos = getRandomGridPosition()
+    isPlaced = False
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            IAWillWin,o,p=blockPlayer(i,j,grid,"o")
+            playerWillWin,h,k=blockPlayer(i,j,grid,"x")
+            if IAWillWin and not isPlaced:
+                if grid[o][p] == " ":
+                    grid[o][p]="o"
+                    isPlaced= True
+            elif playerWillWin and not isPlaced:
+                if grid[h][k]==" ":
+                    grid[h][k]="o"
+                    isPlaced=True
+    if not isPlaced:
+        pos = getRandomGridPosition().split(":")
+        popFilledSlot(pos[0], pos[1])
+        grid[int(pos[0])][int(pos[1])] = "o"
+    isPlaced = False
     
     
 def game_loop(gridPlay)->tuple:
