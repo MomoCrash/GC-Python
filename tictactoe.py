@@ -1,7 +1,7 @@
 import random
 
-WIDTH = 5
-HEIGHT = 5
+WIDTH = 3
+HEIGHT = 3
 
 empty_slot = []
 
@@ -15,6 +15,9 @@ def askReplay()->bool:
     valid_anwsers = ["Y", "y", "n", "N"]
     reponse = input("Voulez-vous rejouer ? Y/n : ")
     
+    if reponse == '& "C:/Program Files/Python312/python.exe" c:/Users/egilotin/Documents/GitHub/GC-Python/tictactoe.py':
+        exit()
+    
     while reponse not in valid_anwsers:
         input("Voulez-vous rejouer ? Y/n : ")
     
@@ -27,7 +30,12 @@ def askReplay()->bool:
 ## Ask grid position 
 def askPosition(question: str, grid: list)->list:
     
-    reponse: list = input(question).split(":")
+    reponse: str = input(question)
+    
+    if reponse == '& "C:/Program Files/Python312/python.exe" c:/Users/egilotin/Documents/GitHub/GC-Python/tictactoe.py':
+        exit()
+        
+    reponse: list = reponse.split(":")
     
     while True:
         
@@ -89,15 +97,19 @@ def checkWin(grid) -> bool:
     for i in range(HEIGHT):
         for j in range(WIDTH):
             
+            # Lines
             if grid[i][j] != " " and (j+1 < WIDTH and j-1 >= 0) and grid[i][j] == grid[i][j+1] and grid[i][j] == grid[i][j-1]:
                 return True,grid[i][j]
             
+            # Column
             elif grid[i][j]!=" " and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j] and grid[i][j] == grid[i-1][j]:
                 return True,grid[i][j]
             
-            elif grid[i-1][j-1]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j+1] and grid[i][j]==grid[i-1][j-1]:
+            # Right Diagonal
+            elif grid[i][j]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j+1] and grid[i][j]==grid[i-1][j-1]:
                 return True,grid[i][j]
             
+            # Left Diagonal
             elif grid[i][j]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i-1][j+1] and grid[i][j]==grid[i+1][j-1]:
                 return True,grid[i][j]
 
@@ -108,41 +120,73 @@ def getRandomGridPosition()->str:
     return random.choice(empty_slot)
     
 def blockPlayer(i,j,grid,symbol):
-    if grid[i][j] != " " and (j+1 < WIDTH and j-1 >= 0) and grid[i][j] == symbol and grid[i][j+1]==symbol:
+    
+    #line
+    if grid[i][j] != " " and (j+1 < WIDTH and j >= 0) and grid[i][j] == symbol and grid[i][j+1]==symbol:
         return True,i,j-1
-    elif grid[i][j] != " " and (j+1 < WIDTH and j-1 >= 0) and grid[i][j] == symbol and grid[i][j-1]==symbol:
+    elif grid[i][j] != " " and (j < WIDTH and j-1 >= 0) and grid[i][j] == symbol and grid[i][j-1]==symbol:
          return True,i,j+1
-    elif grid[i][j]!=" " and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i+1][j]==symbol:
+    elif grid[i][j] != " " and (j+2 < WIDTH and j >= 0) and grid[i][j] == symbol and grid[i][j+2]==symbol:
+        return True,i,j+1
+     
+    #column 
+    elif grid[i][j]!=" " and (i+1 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+1][j]==symbol:
         return True,i-1,j
-    elif grid[i][j]!=" " and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j]==symbol:
+    elif grid[i][j]!=" " and (i < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j]==symbol:
         return True,i+1,j
-    elif grid[i-1][j-1]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i+1][j+1]==symbol:
+    elif grid[i][j]!=" " and (i+2 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+2][j]==symbol:
+        return True,i+1,j
+    
+    #diagonal right
+    elif grid[i][j]!=" " and (j+1 < WIDTH and j >= 0) and (i+1 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+1][j+1]==symbol:
         return True,i-1,j-1
-    elif grid[i-1][j-1]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j-1]==symbol:
+    elif grid[i][j]!=" " and (j < WIDTH and j-1 >= 0) and (i < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j-1]==symbol:
         return True,i+1,j+1
+    elif grid[i][j]!=" " and (j+2 < WIDTH and j >= 0) and (i+2 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+2][j+2]==symbol:
+        return True,i+1,j+1
+    
+    #diagonal left
+    elif grid[i][j]!=" " and (j < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+1][j-1] == symbol:
+        return True,i-1,j+1
+    elif grid[i][j]!=" " and (j+1 < WIDTH and j >= 0) and (i < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j+1] == symbol:
+        return True,i+1,j-1
+    elif grid[i][j]!=" " and (j < WIDTH and j-2 >= 0) and (i+2 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+2][j-2] == symbol:
+        return True,i+1,j-1
+    
+    #si y'a r
     else:
         return False,0,0
+    
 def playIA(grid):
+    
     pos = getRandomGridPosition()
+    IAWin = False
     isPlaced = False
+    best_x, best_y = 0,0
     for i in range(HEIGHT):
         for j in range(WIDTH):
             IAWillWin,o,p=blockPlayer(i,j,grid,"o")
-            playerWillWin,h,k=blockPlayer(i,j,grid,"x")
-            if IAWillWin and not isPlaced:
-                if grid[o][p] == " ":
-                    grid[o][p]="o"
-                    isPlaced= True
-            elif playerWillWin and not isPlaced:
-                if grid[h][k]==" ":
-                    grid[h][k]="o"
-                    isPlaced=True
-    if not isPlaced:
+            if IAWillWin:
+                best_x, best_y = o, p
+                isPlaced = True
+            elif not IAWin:
+                IABlockPlayer,h,k=blockPlayer(i,j,grid,"x")
+                if IABlockPlayer:
+                    best_x, best_y = h, k
+                    isPlaced = True
+    
+    print(best_x, best_y)
+    if not isPlaced or grid[best_x][best_y] != " ":
+        print("RANDOM")
         pos = getRandomGridPosition().split(":")
         popFilledSlot(pos[0], pos[1])
         grid[int(pos[0])][int(pos[1])] = "o"
-    isPlaced = False
+        
+    elif grid[best_x][best_y] == " ":
+        grid[best_x][best_y]="o"
+        popFilledSlot(best_x, best_y)
     
+    isPlaced = False
     
 def game_loop(gridPlay)->tuple:
     while True:
@@ -157,6 +201,10 @@ def game_loop(gridPlay)->tuple:
             print(winner, "a gagné")
             return (winner,askReplay())
         
+        if len(empty_slot) == 0:
+            print("Egalité !")
+            return ("x", askReplay())
+        
         # IA Play turn
         playIA(gridPlay)
         printGrid(gridPlay)
@@ -165,19 +213,27 @@ def game_loop(gridPlay)->tuple:
             
             print(winner, "a gagné")
             return (winner,askReplay())
+        
+        if len(empty_slot) == 0:
+            print("Egalité !")
+            return ("o", askReplay())
  
 def init_game():
+    last_winner = "o"
     player_score = 0
     computer_score = 0
-    empty_slot = []
     while True:
+        empty_slot.clear()
         gridPlay = generateGrid()
         
+        if last_winner == "x": playIA(gridPlay)
         printGrid(gridPlay)
         winner, replay = game_loop(gridPlay)
+        
+        last_winner = winner
         if winner == "x":
             player_score += 1
-        else:
+        elif winner == "o":
             computer_score += 1
         printScore(player_score, computer_score)
         
