@@ -7,12 +7,7 @@ YELLOW = "\033[33m"
 
 def ask_word(ask, alphabet) -> str:
     var: str = ""
-    while len(var) != 5:
-        var = input(ask)
-    while True:
-        if all(j in alphabet for j in var):
-            return var.upper()
-        print("Utilisez seulement des lettres de l'alphabet")
+    while len(var) != 5 and not all(j in alphabet for j in var):
         var = input(ask)
 
 
@@ -33,17 +28,23 @@ def print_wordle(to_guess: str, to_try: str) -> str:
 
 
 def game_loop(word: str, alphabet: list):
+    tries:int=0
     while True:
         player_word: str = ask_word("Écrivez un mot de 5 lettres : ", alphabet)
-
-        print_wordle(word, player_word)
+        while player_word!=word and tries <=6:
+            player_word: str = ask_word("Écrivez un mot de 5 lettres : ", alphabet)
+            print_wordle(word, player_word)
+        if player_word == word:
+            print("vous avez gagné gg")
+        else:
+            print("le mot était",word," dommage !")
 
 
 def init_game():
     a: list = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
                'v', 'w', 'x', 'y', 'z']
-    words: str = ["PATES"]
-    word = random.choice(words)
+    words: list = ["PATES"]
+    word:str = random.choice(words)
 
     game_loop(word, a)
 
