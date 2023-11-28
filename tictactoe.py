@@ -4,6 +4,7 @@ WIDTH = 3
 HEIGHT = 3
 
 empty_slot = []
+deleted_element = 0
 
 ## Print formated score
 def printScore(player: int, computer: int):
@@ -14,9 +15,6 @@ def askReplay()->bool:
     
     valid_anwsers = ["Y", "y", "n", "N"]
     reponse = input("Voulez-vous rejouer ? Y/n : ")
-    
-    if reponse == '& "C:/Program Files/Python312/python.exe" c:/Users/egilotin/Documents/GitHub/GC-Python/tictactoe.py':
-        exit()
     
     while reponse not in valid_anwsers:
         input("Voulez-vous rejouer ? Y/n : ")
@@ -31,9 +29,6 @@ def askReplay()->bool:
 def askPosition(question: str, grid: list)->list:
     
     reponse: str = input(question)
-    
-    if reponse == '& "C:/Program Files/Python312/python.exe" c:/Users/egilotin/Documents/GitHub/GC-Python/tictactoe.py':
-        exit()
         
     reponse: list = reponse.split(":")
     
@@ -69,18 +64,18 @@ def generateGrid()->list:
     for i in range(HEIGHT):
         grid.append([])
         for j in range(WIDTH):
-            empty_slot.append(str(i) + ":" + str(j))
+            empty_slot.append((i, j))
             grid[i].append(" ")
             
     return grid
 
 ## Deletes slots that are already taken 
-def popFilledSlot(x: int, y: int):
-    
-    coord_str: str = str(x) + ":" + str(y) 
-    
-    if coord_str in empty_slot:
-        empty_slot.remove(coord_str)
+def popFilledSlot(index):
+    global deleted_element
+    print("index : ",index)
+    empty_slot[index-deleted_element]=empty_slot[-1]
+    empty_slot.pop()
+    deleted_element += 1
 
 ## Print grid to console
 def printGrid(grid):
@@ -116,7 +111,7 @@ def checkWin(grid) -> bool:
     return False,""
 
 # IA play logic
-def getRandomGridPosition()->str:
+def getRandomGridPosition()->tuple:
     return random.choice(empty_slot)
     
 def blockPlayer(i,j,grid,symbol):
@@ -176,15 +171,17 @@ def playIA(grid):
                     isPlaced = True
     
     print(best_x, best_y)
+    print(empty_slot)
     if not isPlaced or grid[best_x][best_y] != " ":
         print("RANDOM")
-        pos = getRandomGridPosition().split(":")
-        popFilledSlot(pos[0], pos[1])
+        pos = getRandomGridPosition()
+        print(pos)
+        popFilledSlot(pos[0]+WIDTH*pos[1])
         grid[int(pos[0])][int(pos[1])] = "o"
         
     elif grid[best_x][best_y] == " ":
         grid[best_x][best_y]="o"
-        popFilledSlot(best_x, best_y)
+        popFilledSlot(best_y+WIDTH*best_x)
     
     isPlaced = False
     
@@ -193,7 +190,7 @@ def game_loop(gridPlay)->tuple:
         
         # Player play turn
         position: list = askPosition("Mettez la position sour la forme 'x:y' : ", gridPlay)
-        popFilledSlot(position[0], position[1])
+        popFilledSlot(position[1]+WIDTH*position[0])
         gridPlay[position[0]][position[1]] = "x"
         isWon, winner=checkWin(gridPlay)
         if isWon:
