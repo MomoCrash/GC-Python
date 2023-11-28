@@ -1,4 +1,5 @@
 import random
+from time import *
 
 WIDTH = 3
 HEIGHT = 3
@@ -90,88 +91,46 @@ def printGrid(grid):
     print(string)
 
 # Check if someone win the game
-def checkWin(grid) -> bool:
+def check_lines(grid, symbol) -> tuple[bool, tuple[ list[ tuple[int, int], bool ], list[ tuple[int, int], bool ], list[ tuple[int, int], bool ] ]]:
     for i in range(HEIGHT):
         for j in range(WIDTH):
-            
             # Lines
-            if grid[i][j] != " " and (j+1 < WIDTH and j-1 >= 0) and grid[i][j] == grid[i][j+1] and grid[i][j] == grid[i][j-1]:
-                return True,grid[i][j]
+            if (j+2 < WIDTH and j-2 >= 0) and ((grid[i][j+1] ==  grid[i][j-1] == symbol) or (grid[i][j-2] ==  grid[i][j-1] == symbol) or (grid[i][j+2] ==  grid[i][j+1] == symbol)):
+                return (True, (i, j))
             
             # Column
-            elif grid[i][j]!=" " and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j] and grid[i][j] == grid[i-1][j]:
-                return True,grid[i][j]
+            elif (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j] == grid[i-1][j] == symbol):
+                return (True, (i, j))
             
             # Right Diagonal
-            elif grid[i][j]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j+1] and grid[i][j]==grid[i-1][j-1]:
-                return True,grid[i][j]
+            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j+1] == grid[i-1][j-1] == symbol):
+                return (True, (i, j))
             
             # Left Diagonal
-            elif grid[i][j]!=" " and (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i-1][j+1] and grid[i][j]==grid[i+1][j-1]:
-                return True,grid[i][j]
-
-    return False,""
+            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i-1][j+1] == grid[i+1][j-1] == symbol):
+                return (True, (i, j))
+            
+    return (False, (0,0))
 
 # IA play logic
 def getRandomGridPosition()->tuple:
-    random_index: int = random.randint(0, len(empty_slot))
+    random_index: int = random.randint(0, len(empty_slot)-1)
     return (random_index, empty_slot[random_index])
-    
-def blockPlayer(i,j,grid,symbol):
-    
-    #line
-    if grid[i][j] != " " and (j+1 < WIDTH and j >= 0) and grid[i][j] == symbol and grid[i][j+1]==symbol:
-        return True,i,j-1
-    elif grid[i][j] != " " and (j < WIDTH and j-1 >= 0) and grid[i][j] == symbol and grid[i][j-1]==symbol:
-         return True,i,j+1
-    elif grid[i][j] != " " and (j+2 < WIDTH and j >= 0) and grid[i][j] == symbol and grid[i][j+2]==symbol:
-        return True,i,j+1
-     
-    #column 
-    elif grid[i][j]!=" " and (i+1 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+1][j]==symbol:
-        return True,i-1,j
-    elif grid[i][j]!=" " and (i < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j]==symbol:
-        return True,i+1,j
-    elif grid[i][j]!=" " and (i+2 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+2][j]==symbol:
-        return True,i+1,j
-    
-    #diagonal right
-    elif grid[i][j]!=" " and (j+1 < WIDTH and j >= 0) and (i+1 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+1][j+1]==symbol:
-        return True,i-1,j-1
-    elif grid[i][j]!=" " and (j < WIDTH and j-1 >= 0) and (i < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j-1]==symbol:
-        return True,i+1,j+1
-    elif grid[i][j]!=" " and (j+2 < WIDTH and j >= 0) and (i+2 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+2][j+2]==symbol:
-        return True,i+1,j+1
-    
-    #diagonal left
-    elif grid[i][j]!=" " and (j < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+1][j-1] == symbol:
-        return True,i-1,j+1
-    elif grid[i][j]!=" " and (j+1 < WIDTH and j >= 0) and (i < HEIGHT and i-1 >= 0) and grid[i][j] == symbol and grid[i-1][j+1] == symbol:
-        return True,i+1,j-1
-    elif grid[i][j]!=" " and (j < WIDTH and j-2 >= 0) and (i+2 < HEIGHT and i >= 0) and grid[i][j] == symbol and grid[i+2][j-2] == symbol:
-        return True,i+1,j-1
-    
-    #si y'a r
-    else:
-        return False,0,0
     
 def playIA(grid):
     
-    pos = getRandomGridPosition()
-    IAWin = False
     isPlaced = False
     best_x, best_y = 0,0
-    for i in range(HEIGHT):
-        for j in range(WIDTH):
-            IAWillWin,o,p=blockPlayer(i,j,grid,"o")
-            if IAWillWin:
-                best_x, best_y = o, p
-                isPlaced = True
-            elif not IAWin:
-                IABlockPlayer,h,k=blockPlayer(i,j,grid,"x")
-                if IABlockPlayer:
-                    best_x, best_y = h, k
-                    isPlaced = True
+    
+    ia_line_info = check_lines(grid, "o")
+    if ia_line_info[0]:
+        best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
+        isPlaced = True
+    else:
+        ia_line_info = check_lines(grid, "x")
+        if ia_line_info[0]:
+            best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
+            isPlaced = True
     
     if not isPlaced or grid[best_x][best_y] != " ":
         random_index, pos = getRandomGridPosition()
@@ -191,28 +150,29 @@ def game_loop(gridPlay)->tuple:
         position: list = askPosition("Mettez la position sour la forme 'x:y' : ", gridPlay)
         removeFilledSlot((position[0], position[1]))
         gridPlay[position[0]][position[1]] = "x"
-        isWon, winner=checkWin(gridPlay)
-        if isWon:
+        isWon = check_lines(gridPlay, "x")
+        if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "x":
             printGrid(gridPlay)
-            print(winner, "a gagné")
-            return (winner,askReplay())
+            print("X a gagné la partie !!")
+            return ("x",askReplay())
         
         if len(empty_slot) == 0:
             print("Egalité !")
             return ("x", askReplay())
         
         # IA Play turn
+        now = time()
         playIA(gridPlay)
-        printGrid(gridPlay)
-        isWon, winner=checkWin(gridPlay)
-        if isWon:
+        print(time()-now)
+        isWon = check_lines(gridPlay, "o")
+        if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "o":
             
-            print(winner, "a gagné")
-            return (winner,askReplay())
+            print("O, a gagné")
+            return ("o",askReplay())
         
         if len(empty_slot) == 0:
             print("Egalité !")
-            return ("o", askReplay())
+            return (" ", askReplay())
  
 def init_game():
     last_winner = "o"

@@ -1,15 +1,37 @@
-slots: list = {"sdfg": (0,1), 0:(0,2)}
+# Check if someone win the game
+def check_lines(grid, symbol) -> tuple[bool, tuple[ list[ tuple[int, int], bool ], list[ tuple[int, int], bool ], list[ tuple[int, int], bool ] ]]:
+    for i in range(HEIGHT):
+        for j in range(WIDTH):
+            
+            # Lines
+            if (j+1 < WIDTH and j-1 >= 0) and (grid[i][j] == grid[i][j+1] ==  grid[i][j-1] == symbol):
+                return (True, (i, j))
+            
+            # Column
+            elif (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j] == grid[i-1][j] == symbol:
+                return (True, (i, j))
+            
+            # Right Diagonal
+            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j+1] == grid[i-1][j-1] == symbol:
+                return (True, (i, j))
+            
+            # Left Diagonal
+            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i-1][j+1] == grid[i+1][j-1] == symbol:
+                return (True, (i, j))
+            
+            # Lines
+            elif (j+1 < WIDTH and j-1 >= 0):
+                return ( False, ( [(i,j+1), grid[i][j+1] == symbol], [(i,j), grid[i][j] == symbol],  [(i,j-1), grid[i][j-1] == symbol] ) )
+            # Column
+            elif (i+1 < HEIGHT and i-1 >= 0):
+                return ( False, ( [(i+1,j), grid[i+1][j] == symbol], [(i,j), grid[i][j] == symbol],  [(i-1,j), grid[i-1][j] == symbol] ) )
+            # Right Diagonal
+            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0):
+                return ( False, ( [(i-1,j-1), grid[i-1][j-1] == symbol], [(i,j), grid[i][j] == symbol],  [(i+1,j+1), grid[i+1][j+1] == symbol] ) )
+            # Left Diagonal
+            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0):
+                return ( False, ( [(i+1,j-1), grid[i+1][j-1] == symbol], [(i,j), grid[i][j] == symbol],  [(i-1,j+1), grid[i+1][j-1] == symbol] ) )
+            
+    return (False, (0,0))
 
-def swap(i, j):
-    slots[0] = slots[-1]
-    
-swap(0, 1)
-print(slots)
-
-l: list[tuple[int]] = [ [0, 0], [0, 1], [0, 2] ]
-random_index: int = random.randint(0, len(l))
-
-pair_index: tuple[int, int] = l[random_index] 
-
-l[random_index] = l[len(l) - 1]
-l.pop()
+print(True or False or False)
