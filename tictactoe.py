@@ -71,11 +71,13 @@ def generateGrid()->list:
 
 ## Deletes slots that are already taken 
 def popFilledSlot(index):
-    global deleted_element
-    print("index : ",index)
-    empty_slot[index-deleted_element]=empty_slot[-1]
+    empty_slot[index]=empty_slot[-1]
     empty_slot.pop()
-    deleted_element += 1
+
+
+def removeFilledSlot(tpl: tuple[int, int]):
+    empty_slot.remove(tpl)
+
 
 ## Print grid to console
 def printGrid(grid):
@@ -112,7 +114,8 @@ def checkWin(grid) -> bool:
 
 # IA play logic
 def getRandomGridPosition()->tuple:
-    return random.choice(empty_slot)
+    random_index: int = random.randint(0, len(empty_slot))
+    return (random_index, empty_slot[random_index])
     
 def blockPlayer(i,j,grid,symbol):
     
@@ -170,18 +173,14 @@ def playIA(grid):
                     best_x, best_y = h, k
                     isPlaced = True
     
-    print(best_x, best_y)
-    print(empty_slot)
     if not isPlaced or grid[best_x][best_y] != " ":
-        print("RANDOM")
-        pos = getRandomGridPosition()
-        print(pos)
-        popFilledSlot(pos[0]+WIDTH*pos[1])
+        random_index, pos = getRandomGridPosition()
+        popFilledSlot(random_index)
         grid[int(pos[0])][int(pos[1])] = "o"
         
     elif grid[best_x][best_y] == " ":
         grid[best_x][best_y]="o"
-        popFilledSlot(best_y+WIDTH*best_x)
+        removeFilledSlot((best_x, best_y))
     
     isPlaced = False
     
@@ -190,7 +189,7 @@ def game_loop(gridPlay)->tuple:
         
         # Player play turn
         position: list = askPosition("Mettez la position sour la forme 'x:y' : ", gridPlay)
-        popFilledSlot(position[1]+WIDTH*position[0])
+        removeFilledSlot((position[0], position[1]))
         gridPlay[position[0]][position[1]] = "x"
         isWon, winner=checkWin(gridPlay)
         if isWon:
