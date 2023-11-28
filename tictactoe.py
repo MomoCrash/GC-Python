@@ -1,8 +1,8 @@
 import random
 from time import *
 
-WIDTH = 3
-HEIGHT = 3
+WIDTH = 100
+HEIGHT = 100
 
 empty_slot = []
 deleted_element = 0
@@ -18,7 +18,7 @@ def askReplay()->bool:
     reponse = input("Voulez-vous rejouer ? Y/n : ")
     
     while reponse not in valid_anwsers:
-        input("Voulez-vous rejouer ? Y/n : ")
+        reponse = input("Voulez-vous rejouer ? Y/n : ")
     
     if reponse == "Y" or reponse == "y":
         return True
@@ -95,7 +95,7 @@ def check_lines(grid, symbol) -> tuple[bool, tuple[ list[ tuple[int, int], bool 
     for i in range(HEIGHT):
         for j in range(WIDTH):
             # Lines
-            if (j+2 < WIDTH and j-2 >= 0) and ((grid[i][j+1] ==  grid[i][j-1] == symbol) or (grid[i][j-2] ==  grid[i][j-1] == symbol) or (grid[i][j+2] ==  grid[i][j+1] == symbol)):
+            if (j+1 < WIDTH and j-1 >= 0) and (grid[i][j+1] ==  grid[i][j-1] == symbol):
                 return (True, (i, j))
             
             # Column
@@ -164,6 +164,7 @@ def game_loop(gridPlay)->tuple:
         now = time()
         playIA(gridPlay)
         print(time()-now)
+        printGrid(gridPlay)
         isWon = check_lines(gridPlay, "o")
         if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "o":
             
@@ -182,6 +183,8 @@ def init_game():
         empty_slot.clear()
         gridPlay = generateGrid()
         
+        #test_exec(gridPlay, 5000)
+        
         if last_winner == "x": playIA(gridPlay)
         printGrid(gridPlay)
         winner, replay = game_loop(gridPlay)
@@ -196,5 +199,16 @@ def init_game():
         if not replay:
             print("A bientôt :)")
             exit()
+
+def test_exec(grid, n):
+    total_time = 0
+    for i in range(n):
+        random_index, pos = getRandomGridPosition()
+        popFilledSlot(random_index)
+        grid[pos[0]][pos[1]] = "x"
+        now = time()
+        playIA(grid)
+        total_time += time() - now
+    print("Moyenne des coups :", total_time/n)
 
 init_game()
