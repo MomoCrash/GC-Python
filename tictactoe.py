@@ -1,8 +1,9 @@
 import random
 from time import *
+import matplotlib.pyplot as plt
 
-WIDTH = 100
-HEIGHT = 100
+WIDTH = 3
+HEIGHT = 3
 
 empty_slot = []
 deleted_element = 0
@@ -95,19 +96,19 @@ def check_lines(grid, symbol) -> tuple[bool, tuple[ list[ tuple[int, int], bool 
     for i in range(HEIGHT):
         for j in range(WIDTH):
             # Lines
-            if (j+1 < WIDTH and j-1 >= 0) and (grid[i][j+1] ==  grid[i][j-1] == symbol):
+            if ((j+1 < WIDTH and j-1 >= 0) and (grid[i][j+1] ==  grid[i][j-1] == symbol)) or ((j < WIDTH and j-2 >= 0) and (grid[i][j-1] ==  grid[i][j-2] == symbol)) or ((j+2 < WIDTH and j >= 0) and (grid[i][j+1] ==  grid[i][j+2] == symbol)):
                 return (True, (i, j))
             
             # Column
-            elif (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j] == grid[i-1][j] == symbol):
+            elif ((i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j] == grid[i-1][j] == symbol)) or ((i < HEIGHT and i-2 >= 0) and (grid[i-1][j] == grid[i-2][j] == symbol)) or ((i+2 < HEIGHT and i >= 0) and (grid[i+1][j] == grid[i+2][j] == symbol)):
                 return (True, (i, j))
             
             # Right Diagonal
-            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j+1] == grid[i-1][j-1] == symbol):
+            elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j+1] == grid[i-1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j+1] == grid[i+2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j-1] == grid[i-2][j-2] == symbol)):
                 return (True, (i, j))
             
             # Left Diagonal
-            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i-1][j+1] == grid[i+1][j-1] == symbol):
+            elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i-1][j+1] == grid[i+1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j+1] == grid[i-2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j-1] == grid[i+2][j-2] == symbol)):
                 return (True, (i, j))
             
     return (False, (0,0))
@@ -183,7 +184,8 @@ def init_game():
         empty_slot.clear()
         gridPlay = generateGrid()
         
-        #test_exec(gridPlay, 5000)
+        #test_exec(gridPlay, 10000)
+        #return
         
         if last_winner == "x": playIA(gridPlay)
         printGrid(gridPlay)
@@ -201,14 +203,24 @@ def init_game():
             exit()
 
 def test_exec(grid, n):
-    total_time = 0
+    x = []
+    y = []
     for i in range(n):
         random_index, pos = getRandomGridPosition()
         popFilledSlot(random_index)
         grid[pos[0]][pos[1]] = "x"
         now = time()
         playIA(grid)
-        total_time += time() - now
-    print("Moyenne des coups :", total_time/n)
+        turnTime = time() - now
+        if i%100 == 1:
+            y.append(turnTime)
+            x.append(i)
+        print(i)
+    
+    plt.plot(x, y)  
+    plt.xlabel('x - turn')
+    plt.ylabel('y - time')
+    plt.title('Time by turn')
+    plt.show()
 
 init_game()
