@@ -1,11 +1,6 @@
 import random
 from time import sleep
-
-def ask_int(question, max=1000000000) -> int:
-    reponse=""
-    while not reponse.isdigit() or ((int(reponse) < 0) or (int(reponse) >= max)):
-        reponse = input(question)
-    return int(reponse)
+from Tools import ask_int 
 
 def game_init():
     print("Bienvenue sur Plus ou Moins !")
@@ -39,7 +34,7 @@ def game_instance(max, min, toFind, maxEssai):
             elif user_input > toFind:
                 print("Le chiffre à trouver est plus petit que {current}.".format(current=user_input))
                 essais += 1
-            else:
+            elif user_input < toFind:
                 print("Le chiffre à trouver est plus grand que {current}.".format(current=user_input))
                 essais += 1
         
