@@ -4,8 +4,8 @@ import numpy as np
 from scipy.interpolate import make_interp_spline
 import matplotlib.pyplot as plt
 
-WIDTH = 10000
-HEIGHT = 10000
+WIDTH = 1000
+HEIGHT = 1000
 
 empty_slot = []
 deleted_element = 0
@@ -133,7 +133,7 @@ def get_inter_tiles(range: Range):
 
 
 # Check if someone win the game
-def check_lines(grid: list, symbol: str, check_range: Range=None, is_win: bool=False) -> tuple[bool, tuple[int, int]]:
+def check_lines(grid: list, symbol: str, check_range: Range=None) -> tuple[bool, tuple[int, int]]:
     
     if check_range is None: return (False, (0,0))
     
@@ -144,19 +144,19 @@ def check_lines(grid: list, symbol: str, check_range: Range=None, is_win: bool=F
         for j in range(min_x, max_x):
             # Lines
             if ((j+1 < WIDTH and j-1 >= 0) and (grid[i][j+1] ==  grid[i][j-1] == symbol)) or ((j < WIDTH and j-2 >= 0) and (grid[i][j-1] ==  grid[i][j-2] == symbol)) or ((j+2 < WIDTH and j >= 0) and (grid[i][j+1] ==  grid[i][j+2] == symbol)):
-                return (True if not is_win else grid[i][j] == symbol, (i, j))
+                return (grid[i][j] == symbol, (i, j))
             
             # Column
             elif ((i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j] == grid[i-1][j] == symbol)) or ((i < HEIGHT and i-2 >= 0) and (grid[i-1][j] == grid[i-2][j] == symbol)) or ((i+2 < HEIGHT and i >= 0) and (grid[i+1][j] == grid[i+2][j] == symbol)):
-                return (True if not is_win else grid[i][j] == symbol, (i, j))
+                return (grid[i][j] == symbol, (i, j))
             
             # Right Diagonal
             elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j+1] == grid[i-1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j+1] == grid[i+2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j-1] == grid[i-2][j-2] == symbol)):
-                return (True if not is_win else grid[i][j] == symbol, (i, j))
+                return (grid[i][j] == symbol, (i, j))
             
             # Left Diagonal
             elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i-1][j+1] == grid[i+1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j+1] == grid[i-2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j-1] == grid[i+2][j-2] == symbol)):
-                return (True if not is_win else grid[i][j] == symbol, (i, j))
+                return (grid[i][j] == symbol, (i, j))
             
     return (False, (0,0))
 
@@ -192,7 +192,7 @@ def playIA(grid: list, last_range: Range) -> tuple[int, int]:
         return (best_x, best_y)
     
 def game_loop(gridPlay)->tuple:
-    last_play: Range = Range(0, 0, 5)
+    last_play: Range = Range(0, 0, 2)
     while True:
         
         # Player play turn
@@ -215,7 +215,7 @@ def game_loop(gridPlay)->tuple:
         now = time()
         psoition_computer = playIA(gridPlay, last_play)
         print(time()-now)
-        #printGrid(gridPlay)
+        printGrid(gridPlay)
         last_play.set_position(psoition_computer)
         isWon = check_lines(gridPlay, "o", last_play, True)
         if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "o":
@@ -235,11 +235,11 @@ def init_game():
         empty_slot.clear()
         gridPlay = generateGrid()
         
-        test_exec(gridPlay, 2000000)
+        test_exec(gridPlay, 100000)
         return
         
         if last_winner == "x": playIA(gridPlay)
-        #printGrid(gridPlay)
+        printGrid(gridPlay)
         winner, replay = game_loop(gridPlay)
         
         last_winner = winner
@@ -268,8 +268,8 @@ def test_exec(grid, n):
         turnTime = time() - now
         moyenne += turnTime
         last_play.set_position(psoition_computer)
-        if i%500 == 1:
-            y.append(moyenne/500)
+        if i%1000 == 1:
+            y.append(moyenne/1000)
             x.append(i)
             moyenne = 0
             
