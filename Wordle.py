@@ -56,7 +56,7 @@ def game_loop(word: str, alphabet: list,tries: int):
             print("Le mot était",word,"dommage !")
             askReplay()
         else:
-            print("Tu as trouvé le mot gg bravo et suce moi")
+            print("Tu as trouvé le mot gg et bravo")
             askReplay()
         
 
