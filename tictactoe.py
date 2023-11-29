@@ -1,12 +1,48 @@
 import random
 from time import *
+import numpy as np
+from scipy.interpolate import make_interp_spline
 import matplotlib.pyplot as plt
 
-WIDTH = 3
-HEIGHT = 3
+WIDTH = 10000
+HEIGHT = 10000
 
 empty_slot = []
 deleted_element = 0
+
+class Range:
+    def __init__(self, x: int, y: int, radius:int =3):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        
+    def set_position(self, coord: tuple[int, int]):
+        self.x = coord[0]
+        self.y = coord[1]
+        
+    def min_max_x(self, width: int):
+        min_x: int = self.x-self.radius
+        max_x: int = self.x+self.radius
+        if min_x < 0: min_x = 0
+        if max_x > width: max_x = width-1
+        return (min_x, max_x)
+    
+    def min_max_y(self, height: int):
+        min_y: int = self.y-self.radius
+        max_y: int = self.y+self.radius
+        if min_y < 0: min_y = 0
+        if max_y > height: max_y = height-1
+        return (min_y, max_y)
+        
+    def in_range(self, x: int, y: int):
+        if not (self.x - self.radius > x > self.x + self.radius):
+            return False
+        elif not (self.y - self.radius > y > self.y + self.radius):
+            return False
+        else:
+            return True
+            
+    
 
 ## Print formated score
 def printScore(player: int, computer: int):
@@ -90,26 +126,37 @@ def printGrid(grid):
             string += "[" + case + "]"
         string += "\n" 
     print(string)
+    
+
+def get_inter_tiles(range: Range):
+    pass
+
 
 # Check if someone win the game
-def check_lines(grid, symbol) -> tuple[bool, tuple[ list[ tuple[int, int], bool ], list[ tuple[int, int], bool ], list[ tuple[int, int], bool ] ]]:
-    for i in range(HEIGHT):
-        for j in range(WIDTH):
+def check_lines(grid: list, symbol: str, check_range: Range=None, is_win: bool=False) -> tuple[bool, tuple[int, int]]:
+    
+    if check_range is None: return (False, (0,0))
+    
+    min_x, max_x = check_range.min_max_x(WIDTH)
+    min_y, max_y = check_range.min_max_y(HEIGHT)
+    
+    for i in range(min_y, max_y):
+        for j in range(min_x, max_x):
             # Lines
             if ((j+1 < WIDTH and j-1 >= 0) and (grid[i][j+1] ==  grid[i][j-1] == symbol)) or ((j < WIDTH and j-2 >= 0) and (grid[i][j-1] ==  grid[i][j-2] == symbol)) or ((j+2 < WIDTH and j >= 0) and (grid[i][j+1] ==  grid[i][j+2] == symbol)):
-                return (True, (i, j))
+                return (True if not is_win else grid[i][j] == symbol, (i, j))
             
             # Column
             elif ((i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j] == grid[i-1][j] == symbol)) or ((i < HEIGHT and i-2 >= 0) and (grid[i-1][j] == grid[i-2][j] == symbol)) or ((i+2 < HEIGHT and i >= 0) and (grid[i+1][j] == grid[i+2][j] == symbol)):
-                return (True, (i, j))
+                return (True if not is_win else grid[i][j] == symbol, (i, j))
             
             # Right Diagonal
             elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j+1] == grid[i-1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j+1] == grid[i+2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j-1] == grid[i-2][j-2] == symbol)):
-                return (True, (i, j))
+                return (True if not is_win else grid[i][j] == symbol, (i, j))
             
             # Left Diagonal
             elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i-1][j+1] == grid[i+1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j+1] == grid[i-2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j-1] == grid[i+2][j-2] == symbol)):
-                return (True, (i, j))
+                return (True if not is_win else grid[i][j] == symbol, (i, j))
             
     return (False, (0,0))
 
@@ -118,17 +165,17 @@ def getRandomGridPosition()->tuple:
     random_index: int = random.randint(0, len(empty_slot)-1)
     return (random_index, empty_slot[random_index])
     
-def playIA(grid):
+def playIA(grid: list, last_range: Range) -> tuple[int, int]:
     
-    isPlaced = False
-    best_x, best_y = 0,0
+    isPlaced: bool = False
+    best_x, best_y = (0,0)
     
-    ia_line_info = check_lines(grid, "o")
+    ia_line_info = check_lines(grid, "o", last_range)
     if ia_line_info[0]:
         best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
         isPlaced = True
     else:
-        ia_line_info = check_lines(grid, "x")
+        ia_line_info = check_lines(grid, "x", last_range)
         if ia_line_info[0]:
             best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
             isPlaced = True
@@ -136,22 +183,25 @@ def playIA(grid):
     if not isPlaced or grid[best_x][best_y] != " ":
         random_index, pos = getRandomGridPosition()
         popFilledSlot(random_index)
-        grid[int(pos[0])][int(pos[1])] = "o"
+        grid[pos[0]][pos[1]] = "o"
+        return pos
         
-    elif grid[best_x][best_y] == " ":
+    else:
         grid[best_x][best_y]="o"
         removeFilledSlot((best_x, best_y))
-    
-    isPlaced = False
+        return (best_x, best_y)
     
 def game_loop(gridPlay)->tuple:
+    last_play: Range = Range(0, 0, 5)
     while True:
         
         # Player play turn
         position: list = askPosition("Mettez la position sour la forme 'x:y' : ", gridPlay)
         removeFilledSlot((position[0], position[1]))
         gridPlay[position[0]][position[1]] = "x"
-        isWon = check_lines(gridPlay, "x")
+        last_play.set_position(position)
+        
+        isWon = check_lines(gridPlay, "x", last_play, True)
         if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "x":
             printGrid(gridPlay)
             print("X a gagné la partie !!")
@@ -163,10 +213,11 @@ def game_loop(gridPlay)->tuple:
         
         # IA Play turn
         now = time()
-        playIA(gridPlay)
+        psoition_computer = playIA(gridPlay, last_play)
         print(time()-now)
-        printGrid(gridPlay)
-        isWon = check_lines(gridPlay, "o")
+        #printGrid(gridPlay)
+        last_play.set_position(psoition_computer)
+        isWon = check_lines(gridPlay, "o", last_play, True)
         if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "o":
             
             print("O, a gagné")
@@ -184,11 +235,11 @@ def init_game():
         empty_slot.clear()
         gridPlay = generateGrid()
         
-        #test_exec(gridPlay, 10000)
-        #return
+        test_exec(gridPlay, 2000000)
+        return
         
         if last_winner == "x": playIA(gridPlay)
-        printGrid(gridPlay)
+        #printGrid(gridPlay)
         winner, replay = game_loop(gridPlay)
         
         last_winner = winner
@@ -205,19 +256,34 @@ def init_game():
 def test_exec(grid, n):
     x = []
     y = []
+    last_play: Range = Range(0, 0, 5)
+    moyenne = 0
     for i in range(n):
         random_index, pos = getRandomGridPosition()
         popFilledSlot(random_index)
         grid[pos[0]][pos[1]] = "x"
+        last_play.set_position(pos)
         now = time()
-        playIA(grid)
+        psoition_computer = playIA(grid, last_play)
         turnTime = time() - now
-        if i%100 == 1:
-            y.append(turnTime)
+        moyenne += turnTime
+        last_play.set_position(psoition_computer)
+        if i%500 == 1:
+            y.append(moyenne/500)
             x.append(i)
-        print(i)
+            moyenne = 0
+            
+    x = np.array(x)
+    y = np.array(y)
     
-    plt.plot(x, y)  
+    X_Y_Spline = make_interp_spline(x, y)
+ 
+    # Returns evenly spaced numbers
+    # over a specified interval.
+    X_ = np.linspace(x.min(), x.max(), 500)
+    Y_ = X_Y_Spline(X_)
+    
+    plt.plot(X_, Y_)  
     plt.xlabel('x - turn')
     plt.ylabel('y - time')
     plt.title('Time by turn')
