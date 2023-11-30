@@ -53,7 +53,7 @@ def printGrid(word:str, k:int):
     for i in grid:
         print(i)
 
-def game_loop(word: str, alphabet: list,tries: int):
+def game_loop(word: str, alphabet: list,tries: int, grid:list):
     
     while True:
         for i in grid:
@@ -73,16 +73,15 @@ def game_loop(word: str, alphabet: list,tries: int):
         else:
             print("Le mot était",word,"dommage !")
             askReplay()
-        
+        grid = ["-----","-----","-----","-----","-----","-----",]
 
 def init_game():
     a: list = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
                'v', 'w', 'x', 'y', 'z']
     word:str = random.choice(words)
     tries:int=1
-    
     grid = ["-----","-----","-----","-----","-----","-----",]
-    game_loop(word, a,tries)
+    game_loop(word, a,tries,grid)
     
 
 while True:
