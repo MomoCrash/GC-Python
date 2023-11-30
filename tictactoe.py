@@ -4,8 +4,8 @@ from time import *
 #from scipy.interpolate import make_interp_spline
 #import matplotlib.pyplot as plt
 
-WIDTH:int = 3
-HEIGHT:int = 3
+WIDTH:int = 5
+HEIGHT:int = 5
 COUP_GAGNANT:int = 3
 
 empty_slot = []
@@ -145,19 +145,19 @@ def check_lines(grid: list, symbol: str, check_range: Range=None) -> tuple[bool,
         for j in range(min_x, max_x):
             # Lines
             if ((j+1 < WIDTH and j-1 >= 0) and (grid[i][j+1] ==  grid[i][j-1] == symbol)) or ((j < WIDTH and j-2 >= 0) and (grid[i][j-1] ==  grid[i][j-2] == symbol)) or ((j+2 < WIDTH and j >= 0) and (grid[i][j+1] ==  grid[i][j+2] == symbol)):
-                return (grid[i][j] == symbol or grid != " ", (i, j))
+                return (grid[i][j] == symbol or grid != " ", (i, j), "LINE")
             
             # Column
             elif ((i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j] == grid[i-1][j] == symbol)) or ((i < HEIGHT and i-2 >= 0) and (grid[i-1][j] == grid[i-2][j] == symbol)) or ((i+2 < HEIGHT and i >= 0) and (grid[i+1][j] == grid[i+2][j] == symbol)):
-                return (grid[i][j] == symbol or grid != " ", (i, j))
+                return (grid[i][j] == symbol or grid != " ", (i, j), "COL")
             
             # Right Diagonal
             elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j+1] == grid[i-1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j+1] == grid[i+2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j-1] == grid[i-2][j-2] == symbol)):
-                return (grid[i][j] == symbol or grid != " ", (i, j))
+                return (grid[i][j] == symbol or grid != " ", (i, j), "DIAGONAL R")
             
             # Left Diagonal
             elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i-1][j+1] == grid[i+1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j+1] == grid[i-2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j-1] == grid[i+2][j-2] == symbol)):
-                return (grid[i][j] == symbol or grid != " ", (i, j))
+                return (grid[i][j] == symbol or grid != " ", (i, j), "DIAGONAL L")
             
     return (False, (0,0))
 
@@ -172,16 +172,19 @@ def playIA(grid: list, last_range: Range=None) -> tuple[int, int]:
     best_x, best_y= (0,0)
     
     ia_line_info = check_lines(grid, "o", last_range)
+    print(ia_line_info)
     if ia_line_info[0]:
         best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
         isPlaced = True
     else:
         ia_line_info = check_lines(grid, "x", last_range)
+        print(ia_line_info)
         if ia_line_info[0]:
             best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
             isPlaced = True
     
     if not isPlaced or grid[best_x][best_y] != " " or last_range is None:
+        print("Random play for IA")
         random_index, pos = getRandomGridPosition()
         popFilledSlot(random_index)
         grid[pos[0]][pos[1]] = "o"
@@ -193,7 +196,7 @@ def playIA(grid: list, last_range: Range=None) -> tuple[int, int]:
         return (best_x, best_y)
     
 def game_loop(gridPlay)->tuple:
-    last_play: Range = Range(0, 0, 2)
+    last_play: Range = Range(0, 0, 5)
     while True:
         
         # Player play turn
@@ -203,6 +206,7 @@ def game_loop(gridPlay)->tuple:
         last_play.set_position(position)
         
         isWon = check_lines(gridPlay, "x", last_play)
+        print("IS WON X ? ", isWon)
         if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "x":
             printGrid(gridPlay)
             print("X a gagné la partie !!")
@@ -219,6 +223,7 @@ def game_loop(gridPlay)->tuple:
         printGrid(gridPlay)
         last_play.set_position(psoition_computer)
         isWon = check_lines(gridPlay, "o", last_play)
+        print("IS WON O ? ", isWon)
         if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "o":
             
             print("O, a gagné")
@@ -239,7 +244,7 @@ def init_game():
         """test_exec(gridPlay, 100000)
         return"""
         
-        if last_winner == "x": playIA(gridPlay)
+        if last_winner == "x": playIA(gridPlay, None)
         printGrid(gridPlay)
         winner, replay = game_loop(gridPlay)
         
