@@ -1,11 +1,12 @@
 import random
 from time import *
-import numpy as np
-from scipy.interpolate import make_interp_spline
-import matplotlib.pyplot as plt
+#import numpy as np
+#from scipy.interpolate import make_interp_spline
+#import matplotlib.pyplot as plt
 
-WIDTH = 10
-HEIGHT = 10
+WIDTH:int = 3
+HEIGHT:int = 3
+COUP_GAGNANT:int = 3
 
 empty_slot = []
 deleted_element = 0
@@ -144,19 +145,19 @@ def check_lines(grid: list, symbol: str, check_range: Range=None) -> tuple[bool,
         for j in range(min_x, max_x):
             # Lines
             if ((j+1 < WIDTH and j-1 >= 0) and (grid[i][j+1] ==  grid[i][j-1] == symbol)) or ((j < WIDTH and j-2 >= 0) and (grid[i][j-1] ==  grid[i][j-2] == symbol)) or ((j+2 < WIDTH and j >= 0) and (grid[i][j+1] ==  grid[i][j+2] == symbol)):
-                return (grid[i][j] == symbol, (i, j))
+                return (grid[i][j] == symbol or grid != " ", (i, j))
             
             # Column
             elif ((i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j] == grid[i-1][j] == symbol)) or ((i < HEIGHT and i-2 >= 0) and (grid[i-1][j] == grid[i-2][j] == symbol)) or ((i+2 < HEIGHT and i >= 0) and (grid[i+1][j] == grid[i+2][j] == symbol)):
-                return (grid[i][j] == symbol, (i, j))
+                return (grid[i][j] == symbol or grid != " ", (i, j))
             
             # Right Diagonal
             elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j+1] == grid[i-1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j+1] == grid[i+2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j-1] == grid[i-2][j-2] == symbol)):
-                return (grid[i][j] == symbol, (i, j))
+                return (grid[i][j] == symbol or grid != " ", (i, j))
             
             # Left Diagonal
             elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i-1][j+1] == grid[i+1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j+1] == grid[i-2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j-1] == grid[i+2][j-2] == symbol)):
-                return (grid[i][j] == symbol, (i, j))
+                return (grid[i][j] == symbol or grid != " ", (i, j))
             
     return (False, (0,0))
 
@@ -165,10 +166,10 @@ def getRandomGridPosition()->tuple:
     random_index: int = random.randint(0, len(empty_slot)-1)
     return (random_index, empty_slot[random_index])
     
-def playIA(grid: list, last_range: Range) -> tuple[int, int]:
+def playIA(grid: list, last_range: Range=None) -> tuple[int, int]:
     
     isPlaced: bool = False
-    best_x, best_y = (0,0)
+    best_x, best_y= (0,0)
     
     ia_line_info = check_lines(grid, "o", last_range)
     if ia_line_info[0]:
@@ -180,7 +181,7 @@ def playIA(grid: list, last_range: Range) -> tuple[int, int]:
             best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
             isPlaced = True
     
-    if not isPlaced or grid[best_x][best_y] != " ":
+    if not isPlaced or grid[best_x][best_y] != " " or last_range is None:
         random_index, pos = getRandomGridPosition()
         popFilledSlot(random_index)
         grid[pos[0]][pos[1]] = "o"
@@ -201,7 +202,7 @@ def game_loop(gridPlay)->tuple:
         gridPlay[position[0]][position[1]] = "x"
         last_play.set_position(position)
         
-        isWon = check_lines(gridPlay, "x", last_play, True)
+        isWon = check_lines(gridPlay, "x", last_play)
         if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "x":
             printGrid(gridPlay)
             print("X a gagné la partie !!")
@@ -217,7 +218,7 @@ def game_loop(gridPlay)->tuple:
         print(time()-now)
         printGrid(gridPlay)
         last_play.set_position(psoition_computer)
-        isWon = check_lines(gridPlay, "o", last_play, True)
+        isWon = check_lines(gridPlay, "o", last_play)
         if isWon[0] and gridPlay[isWon[1][0]][isWon[1][1]] == "o":
             
             print("O, a gagné")
@@ -235,8 +236,8 @@ def init_game():
         empty_slot.clear()
         gridPlay = generateGrid()
         
-        #test_exec(gridPlay, 10000)
-        #return
+        """test_exec(gridPlay, 100000)
+        return"""
         
         if last_winner == "x": playIA(gridPlay)
         printGrid(gridPlay)
@@ -253,7 +254,7 @@ def init_game():
             print("A bientôt :)")
             exit()
 
-def test_exec(grid, n):
+"""def test_exec(grid, n):
     x = []
     y = []
     last_play: Range = Range(0, 0, 5)
@@ -289,6 +290,6 @@ def test_exec(grid, n):
     plt.xlabel('x - turn')
     plt.ylabel('y - time')
     plt.title('Time by turn')
-    plt.show()
+    plt.show()"""
 
 init_game()
