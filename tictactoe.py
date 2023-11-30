@@ -4,8 +4,8 @@ import numpy as np
 from scipy.interpolate import make_interp_spline
 import matplotlib.pyplot as plt
 
-WIDTH = 1000
-HEIGHT = 1000
+WIDTH = 10
+HEIGHT = 10
 
 empty_slot = []
 deleted_element = 0
@@ -235,8 +235,8 @@ def init_game():
         empty_slot.clear()
         gridPlay = generateGrid()
         
-        test_exec(gridPlay, 100000)
-        return
+        #test_exec(gridPlay, 10000)
+        #return
         
         if last_winner == "x": playIA(gridPlay)
         printGrid(gridPlay)
@@ -258,6 +258,7 @@ def test_exec(grid, n):
     y = []
     last_play: Range = Range(0, 0, 5)
     moyenne = 0
+    pre_stat = time()
     for i in range(n):
         random_index, pos = getRandomGridPosition()
         popFilledSlot(random_index)
@@ -273,6 +274,7 @@ def test_exec(grid, n):
             x.append(i)
             moyenne = 0
             
+    print(f'Grid : {grid} \n Elapsed time : {time() - pre_stat} | Occurences : {n}' )
     x = np.array(x)
     y = np.array(y)
     
