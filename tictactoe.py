@@ -145,7 +145,7 @@ def win_combinaison(grid, i, j, k, symbol, pattern: tuple[int, int, int, int]=(0
             print("ADD", symbol_count, i, j)
             symbol_count += 1
     for decr in range(1, k):
-        print("CRASH", symbol_count, i-(incr*pattern[2]), j-(incr*pattern[3]))
+        print("CRASH", symbol_count, i-(incr*pattern[2]), j, incr, j-(incr*pattern[3]))
         if out_of_grid(i-(incr*pattern[2]), j-(incr*pattern[3])): break
         print(grid[1][2])
         if grid[i-(decr*pattern[2])][j-(decr*pattern[3])] != symbol:
@@ -163,7 +163,7 @@ def win_check(grid: list, k: int, symbol: str, last_position: Range=None) -> boo
     if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (0, 1, 0, 1)): return True
     if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (1, 0, 1, 0)): return True
     if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (1, 1, 1, 1)): return True
-    #if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (0, -1, -1, 0)): return True
+    if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (-1, 1, 1, -1)): return True
     return False
 
 ################ IA PART ##################
@@ -188,9 +188,9 @@ def find_best_play(grid: list, k: int, symbol: str, last_position: Range=None) -
             # Right Diagonal
             elif win_combinaison(grid, i, j, k, symbol, (1, 1, 1, 1)):
                 return (i, j)
-            # Left Diagonal
-            #elif win_combinaison(grid, i, j, k, symbol, (-1, -1, -1, -1)):
-            #    return (i, j)  
+            #Left Diagonal
+            elif win_combinaison(grid, i, j, k, symbol, (-1, 1, -1, 1)):
+                return (i, j)  
     return (0,0)
 
 
