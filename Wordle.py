@@ -1,4 +1,5 @@
 import random
+import os
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -22,8 +23,7 @@ def askReplay():
         init_game()
 
     else:
-        print("À bientôt")
-        quit()
+        os.system('python __init__.py')
 
 def ask_word(ask, alphabet) -> str:
     var: str = ""
@@ -94,14 +94,11 @@ def init_game():
         wordLetters[i]=0
     for j in word:
         wordLetters[j]+=1
-
-    print(wordLetters)
-    print("word :",word)
     
     game_loop(word,a,tries,grid,wordLetters)
     
-
-while True:
-    init_game()
+if __name__ == '__main__':
+    while True:
+        init_game()
 
     

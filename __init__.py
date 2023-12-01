@@ -9,5 +9,7 @@ if __name__ == '__main__':
         os.system('python plus_ou_moins.py')
     if game == "morp":
         os.system('python tictactoe.py')
+    if game == "wordle":
+        os.system('python Wordle.py')
     if game == "quit":
         exit()
