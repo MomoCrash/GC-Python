@@ -1,37 +1,65 @@
-# Check if someone win the game
-def check_lines(grid, symbol) -> tuple[bool, tuple[ list[ tuple[int, int], bool ], list[ tuple[int, int], bool ], list[ tuple[int, int], bool ] ]]:
-    for i in range(HEIGHT):
-        for j in range(WIDTH):
-            
-            # Lines
-            if (j+1 < WIDTH and j-1 >= 0) and (grid[i][j] == grid[i][j+1] ==  grid[i][j-1] == symbol):
-                return (True, (i, j))
-            
-            # Column
-            elif (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j] == grid[i-1][j] == symbol:
-                return (True, (i, j))
-            
-            # Right Diagonal
-            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i+1][j+1] == grid[i-1][j-1] == symbol:
-                return (True, (i, j))
-            
-            # Left Diagonal
-            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and grid[i][j] == grid[i-1][j+1] == grid[i+1][j-1] == symbol:
-                return (True, (i, j))
-            
-            # Lines
-            elif (j+1 < WIDTH and j-1 >= 0):
-                return ( False, ( [(i,j+1), grid[i][j+1] == symbol], [(i,j), grid[i][j] == symbol],  [(i,j-1), grid[i][j-1] == symbol] ) )
-            # Column
-            elif (i+1 < HEIGHT and i-1 >= 0):
-                return ( False, ( [(i+1,j), grid[i+1][j] == symbol], [(i,j), grid[i][j] == symbol],  [(i-1,j), grid[i-1][j] == symbol] ) )
-            # Right Diagonal
-            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0):
-                return ( False, ( [(i-1,j-1), grid[i-1][j-1] == symbol], [(i,j), grid[i][j] == symbol],  [(i+1,j+1), grid[i+1][j+1] == symbol] ) )
-            # Left Diagonal
-            elif (j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0):
-                return ( False, ( [(i+1,j-1), grid[i+1][j-1] == symbol], [(i,j), grid[i][j] == symbol],  [(i-1,j+1), grid[i+1][j-1] == symbol] ) )
-            
-    return (False, (0,0))
+def line_win(grid, i, j, k, symbol):
+    symbol_count = 1
+    for line in range(j+1, j+k):
+        if j+line >= WIDTH: break
+        if grid[i][line] != symbol:
+            break
+        else:
+            symbol_count += 1
+    for line in range(j-1, j-k, -1):
+        if j-line < 0: break
+        if grid[i][line] != symbol:
+            break
+        else:
+            symbol_count += 1
+    return symbol_count >= k
 
-print(True or False or False)
+def col_win(grid, i, j, k, symbol):
+    symbol_count = 1
+    for col in range(i+1, i+k):
+        if i+col >= HEIGHT: break
+        if grid[col][j] != symbol:
+            break
+        else:
+            symbol_count += 1
+    for col in range(i-1, i-k, -1):
+        if i-col < 0: break
+        if grid[col][j] != symbol:
+            break
+        else:
+            symbol_count += 1
+    return symbol_count >= k
+
+def right_diag_win(grid, i, j, k, symbol):
+    symbol_count = 1
+    for incre in range(1, k):
+        if i+incre >= HEIGHT or j+incre >= WIDTH: break
+        print(i+incre, j+incre)
+        if grid[i+incre][j+incre] != symbol:
+            break
+        else:
+            symbol_count += 1
+    for decre in range(1, k):
+        if i-decre < 0 or j-decre < 0: break
+        if grid[i-decre][j-decre] != symbol:
+            break
+        else:
+            symbol_count += 1
+    return symbol_count >= k
+
+def left_diag_win(grid, i, j, k, symbol):
+    symbol_count = 1
+    for incre in range(1, k):
+        if i+incre >= HEIGHT or j+incre >= WIDTH: break
+        print(i+incre, j+incre)
+        if grid[i+incre][j-incre] != symbol:
+            break
+        else:
+            symbol_count += 1
+    for decre in range(1, k):
+        if i-decre < 0 or j+decre >= HEIGHT: break
+        if grid[i-decre][j+decre] != symbol:
+            break
+        else:
+            symbol_count += 1
+    return symbol_count >= k

@@ -4,8 +4,8 @@ from time import *
 #from scipy.interpolate import make_interp_spline
 #import matplotlib.pyplot as plt
 
-WIDTH:int = 5
-HEIGHT:int = 5
+WIDTH:int = 3
+HEIGHT:int = 3
 COUP_GAGNANT:int = 3
 
 empty_slot = []
@@ -34,14 +34,45 @@ class Range:
         if min_y < 0: min_y = 0
         if max_y > height: max_y = height-1
         return (min_y, max_y)
-            
-    
 
-## Print formated score
+
+############## GRID MANAGMENT ##################
+def generateGrid()->list:
+    
+    grid: list = []
+    
+    for i in range(HEIGHT):
+        grid.append([])
+        for j in range(WIDTH):
+            empty_slot.append((i, j))
+            grid[i].append(" ")
+            
+    return grid
+
+## Deletes slots that are already taken 
+def popFilledSlot(index):
+    empty_slot[index]=empty_slot[-1]
+    empty_slot.pop()
+
+
+def removeFilledSlot(tpl: tuple[int, int]):
+    empty_slot.remove(tpl)
+    
+############# INPUT / OUTPUT MANAGMENT ##########
 def printScore(player: int, computer: int):
     print("Score du joueur : " + str(player) + "\nScore de l'ordinateur : " + str(computer))
 
-## Ask if player wants to replay
+
+def printGrid(grid):
+    
+    string: str = ""
+    for line in grid:
+        for case in line:
+            string += "[" + case + "]"
+        string += "\n" 
+    print(string)
+
+
 def askReplay()->bool:
     
     valid_anwsers = ["Y", "y", "n", "N"]
@@ -56,7 +87,7 @@ def askReplay()->bool:
     else:
         return False
 
-## Ask grid position 
+
 def askPosition(question: str, grid: list)->list:
     
     reponse: str = input(question)
@@ -85,162 +116,100 @@ def askPosition(question: str, grid: list)->list:
             print("Votre position n'existe pas essayez par exemple : 1:1.")
             reponse: list = input(question).split(":")
     
+################ WIN PART ##################
+def out_of_grid(i, j):
+    return (i >= HEIGHT or j >= WIDTH or i < 0 or j < 0)
 
 
-## Grid generation
-def generateGrid()->list:
-    
-    grid: list = []
-    
-    for i in range(HEIGHT):
-        grid.append([])
-        for j in range(WIDTH):
-            empty_slot.append((i, j))
-            grid[i].append(" ")
-            
-    return grid
+def win_combinaison(grid, i, j, k, symbol, pattern: tuple[int, int, int, int]=(0,0,0,0)) -> bool:
+    """ Permet de trouver si une combinaison est gagnant pour le symbole choisit avec un pattern
+    Args:
+        grid (list): La grille de jeu
+        i (int): la position en colonne
+        j (int): la position en ligne
+        k (int): en k coup gagnant
+        symbol (str): symbole du joueur qu'on verifie
+        pattern (tuple, optional): Le patterne des ligne ou colonne à incrémenté. \n Exemple: (0, 1, 0, 1) -> Trouve une combinaison sur la ligne
 
-## Deletes slots that are already taken 
-def popFilledSlot(index):
-    empty_slot[index]=empty_slot[-1]
-    empty_slot.pop()
-
-
-def removeFilledSlot(tpl: tuple[int, int]):
-    empty_slot.remove(tpl)
-
-
-## Print grid to console
-def printGrid(grid):
-    
-    string: str = ""
-    for line in grid:
-        for case in line:
-            string += "[" + case + "]"
-        string += "\n" 
-    print(string)
-    
-    
-def line_win(grid, i, j, k, symbol) -> bool:
-    positive_win = True
-    negative_win = True
-    print(j)
-    if j+k >= WIDTH: 
-            positive_win = False
-    else:
-        for line in range(j, j+k):
-            if grid[i][j+line] != symbol:
-                positive_win = False
-                break
-    
-    if j-k < 0: 
-            negative_win = False
-    else:
-        for line in range(j, j-k, -1):
-            print(j+line)
-            if grid[i][j+line] != symbol:
-                negative_win = False
-                break
-    return (negative_win or positive_win)
+    Returns:
+        bool: le symbole a gagné 
+    """
+    print(pattern)
+    symbol_count = 1
+    for incr in range(1, k):
+        if out_of_grid(i+(incr*pattern[0]), j+(incr*pattern[1])): break
+        print(grid[i+(incr*pattern[0])][j+(incr*pattern[1])])
+        if grid[i+(incr*pattern[0])][j+(incr*pattern[1])] != symbol:
+            break
+        else:
+            print("ADD", symbol_count, i, j)
+            symbol_count += 1
+    for decr in range(1, k):
+        print("CRASH", symbol_count, i-(incr*pattern[2]), j-(incr*pattern[3]))
+        if out_of_grid(i-(incr*pattern[2]), j-(incr*pattern[3])): break
+        print(grid[1][2])
+        if grid[i-(decr*pattern[2])][j-(decr*pattern[3])] != symbol:
+            break
+        else:
+            print("REMOVE", grid[i-(decr*pattern[2])][j-(decr*pattern[3])], symbol_count, i, j)
+            symbol_count += 1
+    print(symbol_count)
+    return symbol_count >= k
 
 
-def column_win(grid, i, j, k, symbol) -> bool:
-    positive_win = True
-    negative_win = True
-    if i+k >= HEIGHT: 
-            positive_win = False
-    else:
-        for col in range(i, i+k):
-            if grid[i+col][j] != symbol:
-                positive_win = False
-                break
-    
-    if i-k < 0: 
-            negative_win = False
-    else:
-        for col in range(i, i-k, -1):
-            if grid[i+col][j] != symbol:
-                negative_win = False
-                break
-    return (negative_win or positive_win)
-
-def diagonal_win(grid, i, j, k, symbol) -> bool:
-    if (i+k < WIDTH and i-k > 0): return False
-    for col in range(-k, k*2):
-        if grid[i+col][j] != symbol:
-            return False
-    return True
-    
-
-# Check if someone win the game
-def check_win(grid: list, k: int, symbol: str, last_position: Range=None) -> bool:
-    
+def win_check(grid: list, k: int, symbol: str, last_position: Range=None) -> bool:
     if last_position is None: return False
     
-    print(line_win(grid, last_position.x, last_position.y, k, symbol))
-    print(column_win(grid, last_position.x, last_position.y, k, symbol))
-    
-    if line_win(grid, last_position.x, last_position.y, k, symbol):
-        return True
-    
-    if column_win(grid, last_position.x, last_position.y, k, symbol):
-        return True
-            
+    if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (0, 1, 0, 1)): return True
+    if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (1, 0, 1, 0)): return True
+    if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (1, 1, 1, 1)): return True
+    #if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (0, -1, -1, 0)): return True
     return False
 
+################ IA PART ##################
+def getRandomGridPosition()->tuple:
+    random_index: int = random.randint(0, len(empty_slot)-1)
+    return (random_index, empty_slot[random_index])
 
-# Check if someone win the game
-def check_combinaison(grid: list, symbol: str, check_range: Range=None) -> tuple[int, int]:
-    
-    if check_range is None: return (False, (0,0))
-    
-    min_x, max_x = check_range.min_max_x(WIDTH)
-    min_y, max_y = check_range.min_max_y(HEIGHT)
+
+def find_best_play(grid: list, k: int, symbol: str, last_position: Range=None) -> tuple[int, int]:
+    if last_position is None: return (False, (0,0))
+    min_x, max_x = last_position.min_max_x(WIDTH)
+    min_y, max_y = last_position.min_max_y(HEIGHT)
     
     for i in range(min_y, max_y):
         for j in range(min_x, max_x):
             # Lines
-            if ((j+1 < WIDTH and j-1 >= 0) and (grid[i][j+1] ==  grid[i][j-1] == symbol)) or ((j < WIDTH and j-2 >= 0) and (grid[i][j-1] ==  grid[i][j-2] == symbol)) or ((j+2 < WIDTH and j >= 0) and (grid[i][j+1] ==  grid[i][j+2] == symbol)):
-                return (grid[i][j] == symbol or grid != " ", (i, j), "LINE")
-            
+            if  win_combinaison(grid, i, j, k, symbol, (0, 1, 0, 1)):
+                return (i, j)
             # Column
-            elif ((i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j] == grid[i-1][j] == symbol)) or ((i < HEIGHT and i-2 >= 0) and (grid[i-1][j] == grid[i-2][j] == symbol)) or ((i+2 < HEIGHT and i >= 0) and (grid[i+1][j] == grid[i+2][j] == symbol)):
-                return (grid[i][j] == symbol or grid != " ", (i, j), "COL")
-            
+            elif win_combinaison(grid, i, j, k, symbol, (1, 0, 1, 0)):
+                return (i, j)
             # Right Diagonal
-            elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i+1][j+1] == grid[i-1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j+1] == grid[i+2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j-1] == grid[i-2][j-2] == symbol)):
-                return (grid[i][j] == symbol or grid != " ", (i, j), "DIAGONAL R")
-            
+            elif win_combinaison(grid, i, j, k, symbol, (1, 1, 1, 1)):
+                return (i, j)
             # Left Diagonal
-            elif ((j+1 < WIDTH and j-1 >= 0) and (i+1 < HEIGHT and i-1 >= 0) and (grid[i-1][j+1] == grid[i+1][j-1] == symbol)) or ((j+2 < WIDTH and j >= 0) and (i < HEIGHT and i-2 >= 0) and (grid[i-1][j+1] == grid[i-2][j+2] == symbol)) or ((j < WIDTH and j-2 >= 0) and (i+2 < HEIGHT and i >= 0) and (grid[i+1][j-1] == grid[i+2][j-2] == symbol)):
-                return (grid[i][j] == symbol or grid != " ", (i, j), "DIAGONAL L")
-            
-    return (False, (0,0))
+            #elif win_combinaison(grid, i, j, k, symbol, (-1, -1, -1, -1)):
+            #    return (i, j)  
+    return (0,0)
 
-# IA play logic
-def getRandomGridPosition()->tuple:
-    random_index: int = random.randint(0, len(empty_slot)-1)
-    return (random_index, empty_slot[random_index])
-    
-def playIA(grid: list, last_range: Range=None) -> tuple[int, int]:
+
+def playIA(grid: list, k: int, last_position: Range=None) -> tuple[int, int]:
     
     isPlaced: bool = False
-    best_x, best_y= (0,0)
+    best_position: tuple = (0, 0)
     
-    ia_line_info = check_combinaison(grid, "o", last_range)
-    print(ia_line_info)
-    if ia_line_info[0]:
-        best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
+    best_win = find_best_play(grid, k, "o", last_position)
+    if best_win != (0, 0):
+        best_position = best_win
         isPlaced = True
     else:
-        """
-        ia_line_info = check_combinaison(grid, "x", last_range)
-        print(ia_line_info)
-        if ia_line_info[0]:
-            best_x, best_y = ia_line_info[1][0], ia_line_info[1][1]
-            isPlaced = True"""
+        best_block = find_best_play(grid, k, "x", last_position)
+        if best_block != (0, 0):
+            best_position = best_block
+            isPlaced = True
     
-    if not isPlaced or grid[best_x][best_y] != " " or last_range is None:
+    if not isPlaced or grid[best_position[0]][best_position[0]] != " " or last_position is None:
         print("Random play for IA")
         random_index, pos = getRandomGridPosition()
         popFilledSlot(random_index)
@@ -248,12 +217,12 @@ def playIA(grid: list, last_range: Range=None) -> tuple[int, int]:
         return pos
         
     else:
-        grid[best_x][best_y]="o"
-        removeFilledSlot((best_x, best_y))
-        return (best_x, best_y)
+        grid[best_position[0]][best_position[1]] = "o"
+        removeFilledSlot((best_position[0], best_position[1]))
+        return (best_position[0], best_position[1])
     
 def game_loop(gridPlay)->tuple:
-    last_play: Range = Range(0, 0, 5)
+    last_play: Range = Range(0, 0, 2)
     while True:
         
         # Player play turn
@@ -262,7 +231,7 @@ def game_loop(gridPlay)->tuple:
         gridPlay[position[0]][position[1]] = "x"
         last_play.set_position(position)
         
-        isWon = check_win(gridPlay, 3, "x", last_play)
+        isWon = win_check(gridPlay, 3, "x", last_play)
         print("IS WON X ? ", isWon)
         if isWon:
             printGrid(gridPlay)
@@ -272,14 +241,14 @@ def game_loop(gridPlay)->tuple:
         if len(empty_slot) == 0:
             print("Egalité !")
             return ("x", askReplay())
-        
+        printGrid(gridPlay)
         # IA Play turn
         now = time()
-        psoition_computer = playIA(gridPlay, last_play)
+        """psoition_computer = playIA(gridPlay, 3, last_play)
         print(time()-now)
         printGrid(gridPlay)
         last_play.set_position(psoition_computer)
-        isWon = check_win(gridPlay, 3, "o", last_play)
+        isWon = win_check(gridPlay, 3, "o", last_play)
         print("IS WON O ? ", isWon)
         if isWon:
             
@@ -288,7 +257,7 @@ def game_loop(gridPlay)->tuple:
         
         if len(empty_slot) == 0:
             print("Egalité !")
-            return (" ", askReplay())
+            return (" ", askReplay())"""
  
 def init_game():
     last_winner = "o"
