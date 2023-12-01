@@ -134,26 +134,19 @@ def win_combinaison(grid, i, j, k, symbol, pattern: tuple[int, int, int, int]=(0
     Returns:
         bool: le symbole a gagné 
     """
-    print(pattern)
     symbol_count = 1
     for incr in range(1, k):
         if out_of_grid(i+(incr*pattern[0]), j+(incr*pattern[1])): break
-        print(grid[i+(incr*pattern[0])][j+(incr*pattern[1])])
         if grid[i+(incr*pattern[0])][j+(incr*pattern[1])] != symbol:
             break
         else:
-            print("ADD", symbol_count, i, j)
             symbol_count += 1
     for decr in range(1, k):
-        print("CRASH", symbol_count, i-(incr*pattern[2]), j, incr, j-(incr*pattern[3]))
-        if out_of_grid(i-(incr*pattern[2]), j-(incr*pattern[3])): break
-        print(grid[1][2])
+        if out_of_grid(i-(decr*pattern[2]), j-(decr*pattern[3])): break
         if grid[i-(decr*pattern[2])][j-(decr*pattern[3])] != symbol:
             break
         else:
-            print("REMOVE", grid[i-(decr*pattern[2])][j-(decr*pattern[3])], symbol_count, i, j)
             symbol_count += 1
-    print(symbol_count)
     return symbol_count >= k
 
 
@@ -163,7 +156,7 @@ def win_check(grid: list, k: int, symbol: str, last_position: Range=None) -> boo
     if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (0, 1, 0, 1)): return True
     if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (1, 0, 1, 0)): return True
     if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (1, 1, 1, 1)): return True
-    if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (-1, 1, 1, -1)): return True
+    if win_combinaison(grid, last_position.x, last_position.y, k, symbol, (-1, 1, -1, 1)): return True
     return False
 
 ################ IA PART ##################
@@ -179,6 +172,8 @@ def find_best_play(grid: list, k: int, symbol: str, last_position: Range=None) -
     
     for i in range(min_y, max_y):
         for j in range(min_x, max_x):
+            print(i, j)
+            print(win_combinaison(grid, i, j, k, symbol, (0, 1, 0, 1)))
             # Lines
             if  win_combinaison(grid, i, j, k, symbol, (0, 1, 0, 1)):
                 return (i, j)
@@ -244,7 +239,7 @@ def game_loop(gridPlay)->tuple:
         printGrid(gridPlay)
         # IA Play turn
         now = time()
-        """psoition_computer = playIA(gridPlay, 3, last_play)
+        psoition_computer = playIA(gridPlay, 3, last_play)
         print(time()-now)
         printGrid(gridPlay)
         last_play.set_position(psoition_computer)
@@ -257,7 +252,7 @@ def game_loop(gridPlay)->tuple:
         
         if len(empty_slot) == 0:
             print("Egalité !")
-            return (" ", askReplay())"""
+            return (" ", askReplay())
  
 def init_game():
     last_winner = "o"
