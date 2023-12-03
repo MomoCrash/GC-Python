@@ -269,8 +269,8 @@ def init_game():
         empty_slot.clear()
         gridPlay = generate_grid()
         
-        #test_exec(gridPlay, 10000)
-        #return
+        test_exec(gridPlay, 10000)
+        return
         
         if last_winner == "x": playIA(gridPlay, coups, None)
         print_grid(gridPlay)
